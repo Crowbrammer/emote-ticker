@@ -1,0 +1,35 @@
+{
+  "name": "emote-ticker",
+  "version": "1.0.0",
+  "description": "A emote ticker that is designed to count emotes used in dlivechat",
+  "main": "chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon chat.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DoxIsMightier/emote-ticker.git"
+  },
+  "keywords": [
+    "emote",
+    "ticker",
+    "dlive",
+    "chat",
+    "counter"
+  ],
+  "author": "Anon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DoxIsMightier/emote-ticker/issues"
+  },
+  "homepage": "https://github.com/DoxIsMightier/emote-ticker#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "d3": "^5.9.2",
+    "express": "^4.16.4",
+    "nodemon": "^1.19.0",
+    "timeseries-analysis": "^1.0.12",
+    "ws": "^7.0.0"
+  }
+}
