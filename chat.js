@@ -42,9 +42,6 @@ var eventData = new Map();
 
 /**
  * It takes an emote message from Dlive and records it into the eventData map.
- *
- * (Interesting way to store data! Possibly take past DB totals with Map totals.
- * Combine them so that you don't have to do a DB query each time somebody emotes.)
  * @param {string} message
  */
 const recordData = message => {
@@ -61,7 +58,6 @@ const recordData = message => {
 
 /**
  * Not sure what this is supposed to look like.
- *
  * @param {Date} startTime Now minus three minutes
  * @param {Date} endTime   Now
  * @param {Map} xdata      A map of... ?
