@@ -112,8 +112,7 @@ const DLive = require("dlive-js");
 // const config = require('./config');
 
 let dLive = new DLive({
-  authKey:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRhc3R5c29kaXVtIiwiZGlzcGxheW5hbWUiOiJUYXN0eVNvZGl1bSIsImF2YXRhciI6Imh0dHBzOi8vaW1hZ2VzLnByZC5kbGl2ZWNkbi5jb20vYXZhdGFyL2RlZmF1bHQxNS5wbmciLCJwYXJ0bmVyX3N0YXR1c19zdHJpbmciOiJOT05FIiwiaWQiOiIiLCJsaWQiOjEsInR5cGUiOiIiLCJyb2xlIjoiTm9uZSIsIm9hdXRoX2FwcGlkIjoiIiwiZXhwIjoxNTYxODQ2NTQ3LCJpYXQiOjE1NTkxNjgxNDcsImlzcyI6Ikxpbm9BcHAifQ.DEOt1uztYridVFrluRlzLdebuwkrh9aCiDOEFJl_3k4"
+  authKey: config.authKey
 });
 // listenToChat takes one variable and it's the dlive displayname of a user aka what you see in the url!
 dLive.listenToChat("npc88bot").then(messages => {
