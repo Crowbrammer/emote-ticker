@@ -27,7 +27,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "d3": "^5.9.2",
-    "dlive-js": "^1.0.19",
+    "dlive-js": "^1.0.25",
     "express": "^4.16.4",
     "nodemon": "^1.19.0",
     "timeseries-analysis": "^1.0.12",
