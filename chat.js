@@ -1,13 +1,6 @@
-const WebSocket = require("ws");
-const fs = require("fs");
 const config = require("./config");
-const axios = require("axios");
-const https = require("https");
-const querystring = require("querystring");
-const timeseries = require("timeseries-analysis");
 const express = require("express");
 const d3 = require("d3");
-var path = require("path");
 const app = express();
 
 const listenPort = 8080;
@@ -34,8 +27,6 @@ app.get("/chartdata", function(req, res) {
 app.listen(listenPort, function() {
   console.log("Example app listening on port ", listenPort, "!");
 });
-
-const ws = new WebSocket("wss://graphigostream.prd.dlive.tv", "graphql-ws");
 
 //collecting data
 var eventData = new Map();
