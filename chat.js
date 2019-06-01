@@ -6,6 +6,7 @@ const app = express();
 // There's a more succinct way to write this.
 const getEmoteFromMessage = require("./helpers/recording").getEmoteFromMessage;
 const sliceByTime = require("./helpers/recording").sliceByTime;
+const arrayToBow = require("./helpers/recording").arrayToBow;
 
 const LISTEN_PORT = 8080;
 
@@ -48,18 +49,6 @@ const recordData = message => {
     console.log("eventData:", eventData);
   }
 };
-
-function arrayToBow(array) {
-  let bow = {};
-  for (const word of array) {
-    if (!bow[word]) {
-      bow[word] = 1;
-    } else {
-      bow[word] += 1;
-    }
-  }
-  return bow;
-}
 
 const bow = {};
 

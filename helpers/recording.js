@@ -25,8 +25,24 @@ function sliceByTime(startTime, endTime, xdata) {
   return chunk;
 }
 
+/**
+ * 
+ * @param {Array} array An array of emote strings
+ */
+function arrayToBow(array) {
+  let bow = {};
+  for (const word of array) {
+    if (!bow[word]) {
+      bow[word] = 1;
+    } else {
+      bow[word] += 1;
+    }
+  }
+  return bow;
+}
 
 module.exports = { 
   getEmoteFromMessage: getEmoteFromMessage,
-  sliceByTime: sliceByTime 
+  sliceByTime: sliceByTime,
+  arrayToBow: arrayToBow
 };
