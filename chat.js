@@ -3,7 +3,9 @@ const express = require("express");
 const d3 = require("d3");
 const app = express();
 
+// There's a more succinct way to write this.
 const getEmoteFromMessage = require("./helpers/recording").getEmoteFromMessage;
+const sliceByTime = require("./helpers/recording").sliceByTime;
 
 const LISTEN_PORT = 8080;
 
@@ -46,23 +48,6 @@ const recordData = message => {
     console.log("eventData:", eventData);
   }
 };
-
-/**
- * Not sure what this is supposed to look like.
- * @param {Date} startTime Now minus three minutes
- * @param {Date} endTime   Now
- * @param {Map} xdata      A map of... ?
- * @return {Array} chunk
- */
-function sliceByTime(startTime, endTime, xdata) {
-  let chunk = [];
-  for (const [key, value] of xdata) {
-    if (key < endTime && key > startTime) {
-      chunk.push(value);
-    }
-  }
-  return chunk;
-}
 
 function arrayToBow(array) {
   let bow = {};
