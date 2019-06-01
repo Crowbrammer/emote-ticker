@@ -3,7 +3,9 @@ const express = require("express");
 const d3 = require("d3");
 const app = express();
 
-const listenPort = 8080;
+const getEmoteFromMessage = require("./helpers/recording").getEmoteFromMessage;
+
+const LISTEN_PORT = 8080;
 
 app.use("/", express.static(__dirname + "/public"));
 app.get("/chartdata", function(req, res) {
@@ -24,8 +26,8 @@ app.get("/chartdata", function(req, res) {
   res.send(JSONdata);
 });
 
-app.listen(listenPort, function() {
-  console.log("Example app listening on port ", listenPort, "!");
+app.listen(LISTEN_PORT, function() {
+  console.log("Example app listening on port ", LISTEN_PORT, "!");
 });
 
 //collecting data
@@ -36,15 +38,13 @@ var eventData = new Map();
  * @param {string} message
  */
 const recordData = message => {
-  let splitStr = message.content
-    .substr(1)
-    .slice(0, -1)
-    .split("/");
-  let emote = splitStr[3];
+  let emote;
   let time = Date.now();
-  let dataEntry = emote;
-  eventData.set(time, dataEntry);
-  console.log("eventData:", eventData);
+  if (emote = getEmoteFromMessage(message.content)) {
+    
+    eventData.set(time, emote);
+    console.log("eventData:", eventData);
+  }
 };
 
 /**

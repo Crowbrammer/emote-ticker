@@ -1,13 +1,18 @@
-const recordData = message => {
-  let splitStr = message.content
+function getEmoteFromMessage(messageContent) {
+  if (messageContent.charAt(0) !== ":") return false;
+  let splitStr = messageContent
     .substr(1)
     .slice(0, -1)
     .split("/");
   let emote = splitStr[3];
-  let time = Date.now();
-  let dataEntry = emote;
-  eventData.set(time, dataEntry);
-  console.log("eventData:", eventData);
-};
+  return emote;
+}
 
-module.exports = { recordData: recordData };
+
+// const recordEmote = emote => {  
+//   let time = Date.now();
+//   eventData.set(time, emote);
+//   console.log("eventData:", eventData);
+// };
+
+module.exports = { getEmoteFromMessage: getEmoteFromMessage };
