@@ -1,4 +1,5 @@
 const fs = require("fs");
+const extend = require("jquery.extend");
 
 function getEmoteFromMessage(messageContent) {
   if (messageContent.charAt(0) !== ":") return false;
@@ -58,27 +59,37 @@ function readDbJSON(jsonFile, callback) {
     if (err) {
       console.log(err);
     } else {
-      console.log("Db File read.");
+      // console.log("Db File read.");
       dbs.emoteDb = JSON.parse(data);
       dbs.tempDb = JSON.parse(data); //now it an object
-      console.log("Db Objects initialized.");
+      // console.log("Db Objects initialized.");
       callback(dbs); // I don't know how to pass in an error to the CB.
       // A promise should be used...
     }
   });
 }
 
+// Update the Db entry if the emote already exists, otherwise add the emote to Db:
 /**
- * Find the unique ID of the emote within the Db or add 1 to the total keys
- * @param  {String} emote
- * @return {String} emoteId OR
- * @return {Number}
+ *
+ * @param {String} emote     The id of the emote.
+ * @param {String} emoteTemp The object representing the last emote before we update it.
  */
-function getEmoteId(emote, emoteDb) {
+function writeToDb(emote, emoteTemp) {
   if (emoteDb.hasOwnProperty(emote)) {
-    return emoteDb[emote].emoteId;
+    emoteDb[emote].seenCount = ++emoteDb[emote].seenCount;
+    emoteDb[emote].lastSeen = emoteTemp.lastSeen;
+    // console.log("Emote in Db Object Updated.");
   } else {
-    return Object.keys(emoteDb).length;
+    emoteDb[emote] = {
+      emoteCode: emoteTemp.emoteCode,
+      emoteUrl: emoteTemp.emoteUrl,
+      emoteId: emoteTemp.emoteId,
+      seenCount: emoteTemp.seenCount,
+      firstSeen: emoteTemp.lastSeen,
+      lastSeen: emoteTemp.lastSeen
+    };
+    // console.log("New Emote added to Db Object.");
   }
 }
 
@@ -87,5 +98,5 @@ module.exports = {
   sliceByTime: sliceByTime,
   arrayToBow: arrayToBow,
   readDbJSON: readDbJSON,
-  getEmoteId: getEmoteId
+  writeToDb: writeToDb
 };

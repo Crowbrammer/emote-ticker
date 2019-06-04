@@ -3,8 +3,10 @@ const getEmoteFromMessage = require("../helpers/recording").getEmoteFromMessage;
 const sliceByTime = require("../helpers/recording").sliceByTime;
 const arrayToBow = require("../helpers/recording").arrayToBow;
 const readDbJSON = require("../helpers/recording").readDbJSON;
-const getEmoteId = require("../helpers/recording").getEmoteId;
+const writeToDb = require("../helpers/recording").writeToDb;
+const getEmoteId = require("../helpers/retrieving").getEmoteId;
 const makeEmoteUrl = require("../helpers/retrieving").makeEmoteUrl;
+const getSeenCount = require("../helpers/retrieving").getSeenCount;
 
 describe("Emote Ticker", () => {
   var stickerData = new Map();
@@ -87,8 +89,67 @@ describe("Emote Ticker", () => {
     expect(getEmoteId("blah", emoteDb)).to.equal(1);
   });
 
-  xit("Stores sticker info into a db", () => {
-    // // Ex: :emote/mine/npcanon88/37a499809000955_300240:
-    // expect(My first test).to.equal(My comparison)
+  it("Makes the emote URL", () => {
+    const emote = "15615616548eaeu84";
+    expect(makeEmoteUrl(emote)).to.equal(
+      "https://images.prd.dlivecdn.com/emote/15615616548eaeu84"
+    );
+  });
+
+  it("Gets the number of times the emote has been seen in chat and add 1 or return 1:", () => {
+    emoteDb = {};
+    emote = "3652e8a6f0057fa_300242";
+    expect(getSeenCount(emote)).to.equal(1);
+    emoteDb[emote] = {
+      emoteCode: emote,
+      emoteUrl: makeEmoteUrl(this.emoteCode),
+      emoteId: 0,
+      seenCount: 2,
+      firstSeen: 1556156165,
+      lastSeen: 1561566546
+    };
+    expect(getSeenCount(emote)).to.equal(3);
+  });
+
+  it("Update the Db entry if the emote already exists, otherwise add the emote to Db", () => {
+    emoteDb = {};
+    emote = "3652e8a6f0057fa_300242";
+    let emoteTemp = {
+      emoteCode: ":emote/mine/blah/3652e8a6f0057fa_300242:",
+      emoteUrl: makeEmoteUrl(emote),
+      emoteId: getEmoteId(emote, emoteDb),
+      seenCount: getSeenCount(emote),
+      lastSeen: 561651561
+    };
+    expect(emoteTemp).to.eql({
+      emoteCode: ":emote/mine/blah/3652e8a6f0057fa_300242:",
+      emoteUrl: "https://images.prd.dlivecdn.com/emote/3652e8a6f0057fa_300242",
+      emoteId: 0,
+      seenCount: 1,
+      lastSeen: 561651561
+    });
+    writeToDb(emote, emoteTemp);
+    expect(Object.keys(emoteDb).length).to.equal(1);
+    writeToDb(emote, emoteTemp);
+    expect(emoteDb[emote].seenCount).to.equal(2);
+    expect(emoteDb[emote]).to.eql({
+      emoteCode: ":emote/mine/blah/3652e8a6f0057fa_300242:",
+      emoteUrl: "https://images.prd.dlivecdn.com/emote/3652e8a6f0057fa_300242",
+      emoteId: 0,
+      seenCount: 2,
+      firstSeen: 561651561,
+      lastSeen: 561651561
+    });
+
+    // emoteDb[emote] = {
+    //   emoteCode: emote,
+    //   emoteUrl: makeEmoteUrl(this.emoteCode),
+    //   emoteId: 0,
+    //   seenCount: 2,
+    //   firstSeen: 1556156165,
+    //   lastSeen: 1561566546
+    // };
+
+    writeToDb(emote, emoteTemp);
   });
 });
