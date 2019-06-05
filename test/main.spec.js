@@ -3,8 +3,11 @@ const getEmoteFromMessage = require("../helpers/recording").getEmoteFromMessage;
 const sliceByTime = require("../helpers/recording").sliceByTime;
 const arrayToBow = require("../helpers/recording").arrayToBow;
 const readDbJSON = require("../helpers/recording").readDbJSON;
-const getEmoteId = require("../helpers/recording").getEmoteId;
+const writeToDb = require("../helpers/recording").writeToDb;
+const backupAsJson = require("../helpers/recording").backupAsJson;
+const getEmoteId = require("../helpers/retrieving").getEmoteId;
 const makeEmoteUrl = require("../helpers/retrieving").makeEmoteUrl;
+const getSeenCount = require("../helpers/retrieving").getSeenCount;
 
 describe("Emote Ticker", () => {
   var stickerData = new Map();
@@ -87,8 +90,122 @@ describe("Emote Ticker", () => {
     expect(getEmoteId("blah", emoteDb)).to.equal(1);
   });
 
-  xit("Stores sticker info into a db", () => {
-    // // Ex: :emote/mine/npcanon88/37a499809000955_300240:
-    // expect(My first test).to.equal(My comparison)
+  it("Makes the emote URL", () => {
+    const emote = "15615616548eaeu84";
+    expect(makeEmoteUrl(emote)).to.equal(
+      "https://images.prd.dlivecdn.com/emote/15615616548eaeu84"
+    );
   });
+
+  it("Gets the number of times the emote has been seen in chat and add 1 or return 1:", () => {
+    emoteDb = {};
+    emote = "3652e8a6f0057fa_300242";
+    expect(getSeenCount(emote)).to.equal(1);
+    emoteDb[emote] = {
+      emoteCode: emote,
+      emoteUrl: makeEmoteUrl(this.emoteCode),
+      emoteId: 0,
+      seenCount: 2,
+      firstSeen: 1556156165,
+      lastSeen: 1561566546
+    };
+    expect(getSeenCount(emote)).to.equal(3);
+  });
+
+  it("Update the Db entry if the emote already exists, otherwise add the emote to Db", () => {
+    emoteDb = {};
+    emote = "3652e8a6f0057fa_300242";
+    let emoteTemp = {
+      emoteCode: ":emote/mine/blah/3652e8a6f0057fa_300242:",
+      emoteUrl: makeEmoteUrl(emote),
+      emoteId: getEmoteId(emote, emoteDb),
+      seenCount: getSeenCount(emote),
+      lastSeen: 561651561
+    };
+    expect(emoteTemp).to.eql({
+      emoteCode: ":emote/mine/blah/3652e8a6f0057fa_300242:",
+      emoteUrl: "https://images.prd.dlivecdn.com/emote/3652e8a6f0057fa_300242",
+      emoteId: 0,
+      seenCount: 1,
+      lastSeen: 561651561
+    });
+    writeToDb(emote, emoteTemp);
+    expect(Object.keys(emoteDb).length).to.equal(1);
+    writeToDb(emote, emoteTemp);
+    expect(emoteDb[emote].seenCount).to.equal(2);
+    expect(emoteDb[emote]).to.eql({
+      emoteCode: ":emote/mine/blah/3652e8a6f0057fa_300242:",
+      emoteUrl: "https://images.prd.dlivecdn.com/emote/3652e8a6f0057fa_300242",
+      emoteId: 0,
+      seenCount: 2,
+      firstSeen: 561651561,
+      lastSeen: 561651561
+    });
+
+    writeToDb(emote, emoteTemp);
+  });
+
+  it("Lets me know if I can pass an argument into a function without a parameter", () => {
+    function unnamed() {
+      return;
+    }
+    unnamed("hi");
+  });
+
+  it("Creates/updates the json database backups", done => {
+    // How do I remove the file.
+    const fs = require("fs");
+    const jsonPath = require("../config").jsonPath;
+    // Welcome to callback hell... (Because how do I get FS
+    // To work like a Promise? Sorry if you're new to async.
+    // This will likely feel very uncomfortable to you).
+
+    // Make sure there's no JSON "db" (table).
+
+    fs.unlink(jsonPath, err => {
+      // Should I check that fs.unlink works?
+      fs.stat(jsonPath, (err, stats) => {
+        expect(err).to.not.be.undefined;
+        expect(stats).to.be.undefined;
+        // Create the JSON db
+        backupAsJson(emoteDb, jsonPath, (message, newEmoteDb) => {
+          expect(message).to.equal(
+            "Database file didn't exist. New JSON database file created"
+          );
+          // It shouldn't return a db from the json if it doesn't exist.
+          expect(newEmoteDb).to.be.undefined;
+          // Check that the file exists.
+          fs.stat(jsonPath, (err, stat) => {
+            expect(err).to.be.null;
+            expect(stat).to.not.be.undefined;
+            // Try it again with the json file there, exact same data.
+            backupAsJson(emoteDb, jsonPath, (message, newEmoteDb) => {
+              expect(message).to.equal("emoteDb.json overwritten.");
+              expect(newEmoteDb).to.be.undefined;
+              // Test if the file is there again?
+              // Try it again with the json file > the current
+              backupAsJson({}, jsonPath, (message, newEmoteDb) => {
+                expect(newEmoteDb).to.exist;
+                expect(message).to.equal(
+                  "Existing JSON database is newer than the current. Replacing current with backup JSON."
+                );
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  // it("Lets me create a cooldown for the user", () => {
+  //   const now = 1559673987498;
+  //   const lessThanTwoMinutesAgo = 1559673987498 - 1000*60*1;
+  //   const moreThanTwoMinutesAgo = 1559673987498 - 1000*60*3;
+
+  //   function checkCooldown(now, lastSeen) {
+  //     if (checkCooldown())
+  //   }
+
+  // });
 });

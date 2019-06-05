@@ -6,5 +6,6 @@ module.exports = {
   points: 1,
   pointsTimer: 300,
   streamer: "TastySodium",
-  streamerDisplayName: "npcbot88"
+  streamerDisplayName: "npcbot88",
+  jsonPath: __dirname + "\\data\\emoteDb.json"
 };
