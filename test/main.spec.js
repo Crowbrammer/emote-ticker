@@ -198,14 +198,23 @@ describe("Emote Ticker", () => {
     });
   });
 
-  // it("Lets me create a cooldown for the user", () => {
-  //   const now = 1559673987498;
-  //   const lessThanTwoMinutesAgo = 1559673987498 - 1000*60*1;
-  //   const moreThanTwoMinutesAgo = 1559673987498 - 1000*60*3;
+  it("Gets a random emote when !rand is called", () => {
+    const randomEmote = require("../helpers/retrieving").randomEmote;
+    emoteDb = {};
+    emotes = ["3652e8a6f0057fa_300242", "pizza1141,", "3251351aue315_315151"];
 
-  //   function checkCooldown(now, lastSeen) {
-  //     if (checkCooldown())
-  //   }
+    emotes.forEach(emote => {
+      let emoteTemp = {
+        emoteCode: `:emote/mine/blah/${emote}:`,
+        emoteUrl: makeEmoteUrl(emote),
+        emoteId: getEmoteId(emote, emoteDb),
+        seenCount: getSeenCount(emote),
+        lastSeen: 561651561
+      };
+      writeToDb(emote, emoteTemp);
+    });
 
-  // });
+    expect(Object.keys(emoteDb).length).to.equal(3);
+    expect(emotes).to.contain(randomEmote(emotes));
+  });
 });

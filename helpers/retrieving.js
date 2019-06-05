@@ -32,8 +32,14 @@ const getSeenCount = emote => {
   }
 };
 
+function randomEmote(emoteDb) {
+  var keys = Object.keys(emoteDb);
+  return emoteDb[keys[(keys.length * Math.random()) << 0]];
+}
+
 module.exports = {
   makeEmoteUrl: makeEmoteUrl,
   getEmoteId: getEmoteId,
-  getSeenCount: getSeenCount
+  getSeenCount: getSeenCount,
+  randomEmote: randomEmote
 };

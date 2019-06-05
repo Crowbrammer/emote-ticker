@@ -100,7 +100,6 @@ function writeToDb(emote, emoteTemp) {
  * @param {Function} callback Optional callback, usually for testing
  */
 function createBackup(path, emoteDb, callback, details) {
-  // Convert emoteDb object into json string:
   var currentEmoteDbJson = JSON.stringify(emoteDb);
   fs.writeFile(path, currentEmoteDbJson, "utf8", function writeFileCallback(
     err

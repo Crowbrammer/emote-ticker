@@ -4,9 +4,12 @@ const d3 = require("d3");
 const app = express();
 
 // There's a more succinct way to write this.
-const getEmoteFromMessage = require("./helpers/recording").getEmoteFromMessage;
-const sliceByTime = require("./helpers/recording").sliceByTime;
-const arrayToBow = require("./helpers/recording").arrayToBow;
+const recordingModule = require("./helpers/recording");
+const retrievingModule = require("./helpers/retrieving");
+const getEmoteFromMessage = recordingModule.getEmoteFromMessage;
+const sliceByTime = recordingModule.sliceByTime;
+const arrayToBow = recordingModule.arrayToBow;
+const makeEmoteUrl = retrievingModule.makeEmoteUrl;
 
 const LISTEN_PORT = 8080;
 
@@ -43,8 +46,7 @@ var eventData = new Map();
 const recordData = message => {
   let emote;
   let time = Date.now();
-  if (emote = getEmoteFromMessage(message.content)) {
-    
+  if ((emote = getEmoteFromMessage(message.content))) {
     eventData.set(time, emote);
     console.log("eventData:", eventData);
   }
@@ -69,16 +71,13 @@ const bowappend = word => {
   }
 };
 
-const makeEmoteUrl = emote => {
-  return "".concat("https://images.prd.dlivecdn.com/emote/", emote);
-};
-
 const DLive = require("dlive-js");
 // const config = require('./config');
 
 let dLive = new DLive({
   authKey: config.authKey
 });
+
 // listenToChat takes one variable and it's the dlive displayname of a user aka what you see in the url!
 dLive.listenToChat("npc88bot").then(messages => {
   // messages is a rxjs behavioursubject that will give you the latest msgs on subscribing.
