@@ -4,6 +4,7 @@ const sliceByTime = require("../helpers/recording").sliceByTime;
 const arrayToBow = require("../helpers/recording").arrayToBow;
 const readDbJSON = require("../helpers/recording").readDbJSON;
 const writeToDb = require("../helpers/recording").writeToDb;
+const backupAsJson = require("../helpers/recording").backupAsJson;
 const getEmoteId = require("../helpers/retrieving").getEmoteId;
 const makeEmoteUrl = require("../helpers/retrieving").makeEmoteUrl;
 const getSeenCount = require("../helpers/retrieving").getSeenCount;
@@ -141,15 +142,70 @@ describe("Emote Ticker", () => {
       lastSeen: 561651561
     });
 
-    // emoteDb[emote] = {
-    //   emoteCode: emote,
-    //   emoteUrl: makeEmoteUrl(this.emoteCode),
-    //   emoteId: 0,
-    //   seenCount: 2,
-    //   firstSeen: 1556156165,
-    //   lastSeen: 1561566546
-    // };
-
     writeToDb(emote, emoteTemp);
   });
+
+  it("Lets me know if I can pass an argument into a function without a parameter", () => {
+    function unnamed() {
+      return;
+    }
+    unnamed("hi");
+  });
+
+  it("Creates/updates the json database backups", done => {
+    // How do I remove the file.
+    const fs = require("fs");
+    const jsonPath = require("../config").jsonPath;
+    // Welcome to callback hell... (Because how do I get FS
+    // To work like a Promise? Sorry if you're new to async.
+    // This will likely feel very uncomfortable to you).
+
+    // Make sure there's no JSON "db" (table).
+
+    fs.unlink(jsonPath, err => {
+      // Should I check that fs.unlink works?
+      fs.stat(jsonPath, (err, stats) => {
+        expect(err).to.not.be.undefined;
+        expect(stats).to.be.undefined;
+        // Create the JSON db
+        backupAsJson(emoteDb, jsonPath, (message, newEmoteDb) => {
+          expect(message).to.equal(
+            "Database file didn't exist. New JSON database file created"
+          );
+          // It shouldn't return a db from the json if it doesn't exist.
+          expect(newEmoteDb).to.be.undefined;
+          // Check that the file exists.
+          fs.stat(jsonPath, (err, stat) => {
+            expect(err).to.be.null;
+            expect(stat).to.not.be.undefined;
+            // Try it again with the json file there, exact same data.
+            backupAsJson(emoteDb, jsonPath, (message, newEmoteDb) => {
+              expect(message).to.equal("emoteDb.json overwritten.");
+              expect(newEmoteDb).to.be.undefined;
+              // Test if the file is there again?
+              // Try it again with the json file > the current
+              backupAsJson({}, jsonPath, (message, newEmoteDb) => {
+                expect(newEmoteDb).to.exist;
+                expect(message).to.equal(
+                  "Existing JSON database is newer than the current. Replacing current with backup JSON."
+                );
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  // it("Lets me create a cooldown for the user", () => {
+  //   const now = 1559673987498;
+  //   const lessThanTwoMinutesAgo = 1559673987498 - 1000*60*1;
+  //   const moreThanTwoMinutesAgo = 1559673987498 - 1000*60*3;
+
+  //   function checkCooldown(now, lastSeen) {
+  //     if (checkCooldown())
+  //   }
+
+  // });
 });
