@@ -51,7 +51,19 @@ function renderChart(labs, dat) {
   });
 }
 
-function displayImagesOnChart() {
+function displayImagesOnChart(imageSrcs) {
+  // (Only do this if there's a change)
+  // Get the images on the screen
+  const xAxis = document.querySelector("#xAxis");
+  while (xAxis.firstChild) {
+    xAxis.removeChild(xAxis.firstChild);
+  }
+  var image;
+  imageSrcs.forEach(imageSrc => {
+    image = document.createElement("img");
+    image.setAttribute("src", imageSrc);
+    xAxis.appendChild(image);
+  });
   // Look at # of bars on there
   // Look at the size of the screen
   // Look at the space available
@@ -65,6 +77,9 @@ function getChartData() {
     success: function(result) {
       result = JSON.parse(result);
       renderChart(result.labels, result.data);
+      if (result.imageSrcs) {
+        displayImagesOnChart(result.imageSrcs);
+      }
     },
     error: function(err) {}
   });
