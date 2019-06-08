@@ -12,39 +12,6 @@ function getEmoteFromMessage(messageContent) {
 }
 
 /**
- * List values (us. emotes) that have a timestamp within the start and end time..
- * @param {Date} startTime Now minus three minutes
- * @param {Date} endTime   Now
- * @param {Map} xdata      A map of... ?
- * @return {Array} chunk   A list of the emotes used within the timeframe.
- */
-function sliceByTime(startTime, endTime, xdata) {
-  let chunk = [];
-  for (const [key, value] of xdata) {
-    if (key < endTime && key > startTime) {
-      chunk.push(value);
-    }
-  }
-  return chunk;
-}
-
-/**
- *
- * @param {Array} array An array of emote strings
- */
-function arrayToBow(array) {
-  let bow = {};
-  for (const word of array) {
-    if (!bow[word]) {
-      bow[word] = 1;
-    } else {
-      bow[word] += 1;
-    }
-  }
-  return bow;
-}
-
-/**
  * Read Db JSON and parse into Db objects.
  *
  * @param {String} jsonFile  Location of the JSON file that stores the emotes.
@@ -188,8 +155,6 @@ function backupAsJson(emoteDb, path, callback) {
 
 module.exports = {
   getEmoteFromMessage: getEmoteFromMessage,
-  sliceByTime: sliceByTime,
-  arrayToBow: arrayToBow,
   readDbJSON: readDbJSON,
   writeToDb: writeToDb,
   backupAsJson: backupAsJson

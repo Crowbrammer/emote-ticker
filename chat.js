@@ -1,15 +1,20 @@
 const config = require("./config");
 const express = require("express");
-const d3 = require("d3");
 const app = express();
 
 // There's a more succinct way to write this.
 const recordingModule = require("./helpers/recording");
 const retrievingModule = require("./helpers/retrieving");
 const getEmoteFromMessage = recordingModule.getEmoteFromMessage;
-const sliceByTime = recordingModule.sliceByTime;
-const arrayToBow = recordingModule.arrayToBow;
+const sliceByTime = retrievingModule.sliceByTime;
+const arrayToBow = retrievingModule.arrayToBow;
 const makeEmoteUrl = retrievingModule.makeEmoteUrl;
+const getCondition = retrievingModule.getCondition;
+const top5Bow = retrievingModule.top5Bow;
+const rr = require("./helpers/games/rr");
+const shouldWeStartRR = rr.shouldWeStartRR;
+const russianRoulette = rr.russianRoulette;
+const rrWaitFunc = rr.rrWaitFunc;
 
 const LISTEN_PORT = 8080;
 
@@ -17,16 +22,43 @@ app.use("/", express.static(__dirname + "/public"));
 app.get("/chartdata", function(req, res) {
   let curTime = Date.now();
   let dataSlice = sliceByTime(curTime - 60000 * 3, curTime, eventData);
-  let curBow = top5bow(arrayToBow(dataSlice));
+  let curBow = top5Bow(arrayToBow(dataSlice));
   let keys = curBow.map(a => a.key);
   let vals = curBow.map(a => a.value);
 
+  /**
+   * CONDITIONS:
+   * Bows changed, but order has not
+   * Bows the same
+   * Bows changed, order has changed
+   * Bows changed, image(s) removed
+   *
+   * ASSIGNMENTS:
+   * emotes (keys)
+   * data
+   * emoteSrcs
+   *
+   * LOOPS:
+   * None.
+   */
+
   // make some calls to database, fetch some data, information, check state, etc...
   if (keys.length >= 1) {
-    var dataToSendToClient = { labels: keys, data: vals };
+    // Have code that tells if there's a change or not.
+    var imageSrcs = [];
+    keys.forEach(emote => {
+      imageSrcs.push(makeEmoteUrl(emote));
+    });
+    // CONDITION LOGIC SHOULD GO HERE.
+    var dataToSendToClient = {
+      condition: getCondition(lastBow, curBow),
+      labels: keys,
+      data: vals,
+      imageSrcs: imageSrcs
+    };
     // convert whatever we want to send (preferably should be an object) to JSON
   } else {
-    var dataToSendToClient = { labels: [], data: [] };
+    var dataToSendToClient = { condition: -1, labels: [], data: [] };
   }
   var JSONdata = JSON.stringify(dataToSendToClient);
   res.send(JSONdata);
@@ -37,6 +69,7 @@ app.listen(LISTEN_PORT, function() {
 });
 
 //collecting data
+var lastBow;
 var eventData = new Map();
 
 /**
@@ -54,15 +87,6 @@ const recordData = message => {
 
 const bow = {};
 
-function top5bow(bow) {
-  return d3
-    .entries(bow)
-    .sort(function(a, b) {
-      return a.value < b.value;
-    })
-    .slice(0, 5);
-}
-
 const bowappend = word => {
   if (!bow[word] && word !== "") {
     bow[word] = 1;
@@ -78,6 +102,7 @@ let dLive = new DLive({
   authKey: config.authKey
 });
 
+var rrGameInProgress = false;
 // listenToChat takes one variable and it's the dlive displayname of a user aka what you see in the url!
 dLive.listenToChat("npc88bot").then(messages => {
   // messages is a rxjs behavioursubject that will give you the latest msgs on subscribing.
@@ -109,5 +134,7 @@ dLive.listenToChat("npc88bot").then(messages => {
         msg.content
       );
     }
+
+    if (shouldWeStartRR(msg.content)) russianRoulette(msg.content);
   });
 });
